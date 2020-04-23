@@ -14,13 +14,11 @@ class Benchmarker {
 	
 	func benchmark<T>(_ testName: String, shouldResetClock: Bool, _ block: () -> T) -> T {
 		if shouldResetClock {
-			testTimeCache = [:]
+			clearCache(for: testName)
 		}
-//		print("Running test \"\(testName)\"")
 		let startTime = CFAbsoluteTimeGetCurrent()
 		let result = block()
 		let testTime = CFAbsoluteTimeGetCurrent() - startTime
-//		print("Completed test \"\(testName)\" (\(testTime))")
 		if let cachedTime = testTimeCache[testName] {
 			testTimeCache[testName] = cachedTime + testTime
 		} else {

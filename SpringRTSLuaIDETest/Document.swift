@@ -86,8 +86,9 @@ class Document: NSDocument, NSTextViewDelegate, NSTextStorageDelegate {
 	
 	private func update() {
 		guard let code = textView.textStorage?.string else { return }
-		let tokens = lexer.lex(code)
-		presenter.updateCode(code, shownIn: textView, with: tokens)
+		var tokens: [(token: Token, rangeOfToken: Range<String.Index>)] = []
+		_ = lexer.lex(code, into: &tokens, startingFrom: code.startIndex, resignAt: code.endIndex)
+		presenter.updateCode(code, shownIn: NSMakeRange(0, code.count), in: textView, with: tokens)
 	}
 	
 	// MARK: - NSTextStorageDelegate

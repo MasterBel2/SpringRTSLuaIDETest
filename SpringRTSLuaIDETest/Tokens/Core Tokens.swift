@@ -35,6 +35,7 @@ extension Token {
 		case period = "."
 		case comma = ","
 		case colon = ":"
+		case semicolon = ";"
 		
 		// Whitespace
 		case space = " "
