@@ -8,36 +8,93 @@
 
 import Cocoa
 
-class Document: NSDocument {
+class Document: NSDocument, NSTextViewDelegate, NSTextStorageDelegate {
 
-	override init() {
-	    super.init()
-		// Add your subclass-specific initialization here.
+    enum Error: Swift.Error {
+        case encodingError
+    }
+
+    var plainCode: String {
+        return presentationCode.string
+    }
+	
+	// MARK: - Workers
+	
+	let lexer = BaseLexer()
+	let presenter = CodePresenter()
+	
+	// MARK: - Outlets
+	
+    @objc dynamic var presentationCode = NSAttributedString()
+    @IBOutlet var textView: NSTextView!
+	
+	// MARK: -
+	
+	// MARK: - Cocoa
+
+    override init() {
+        super.init()
+    }
+	
+	// MARK: - Data
+
+    override class var autosavesInPlace: Bool {
+        return true
+    }
+
+    override var windowNibName: NSNib.Name? {
+        // Returns the nib file name of the document
+        // If you need to use a subclass of NSWindowController or if your document supports multiple NSWindowControllers, you should remove this property and override -makeWindowControllers instead.
+        return NSNib.Name("Document")
+    }
+
+    override func data(ofType typeName: String) throws -> Data {
+        guard let data = plainCode.data(using: .utf8) else {
+            throw Error.encodingError
+        }
+
+        return data
+    }
+
+    override func read(from data: Data, ofType typeName: String) throws {
+        guard let fileContent = String(data: data, encoding: .utf8) else {
+            throw Error.encodingError
+        }
+        presentationCode = NSMutableAttributedString(string: fileContent)
+    }
+
+//    func process() {
+//        do {
+//            let lexer = try Lexer(code: presentationCode.string)
+//            let tokenRangePairs = try lexer.tokenRangePairs2()
+//            guard let mutableString = presentationCode.mutableCopy() as? NSMutableAttributedString else {
+//                return
+//            }
+//            Highlighter().highlight(mutableString, with: tokenRangePairs)
+//            presentationCode = mutableString
+//        } catch {
+//            Swift.print(error)
+//        }
+//    }
+
+    // MARK: - NSTextViewDelegate
+	
+	func textDidChange(_ notification: Notification) {
+		Swift.print("textDidChange")
+		update()
 	}
-
-	override class var autosavesInPlace: Bool {
-		return true
+	
+	private func update() {
+		guard let code = textView.textStorage?.string else { return }
+		let tokens = lexer.lex(code)
+		presenter.updateCode(code, shownIn: textView, with: tokens)
 	}
-
-	override var windowNibName: NSNib.Name? {
-		// Returns the nib file name of the document
-		// If you need to use a subclass of NSWindowController or if your document supports multiple NSWindowControllers, you should remove this property and override -makeWindowControllers instead.
-		return NSNib.Name("Document")
-	}
-
-	override func data(ofType typeName: String) throws -> Data {
-		// Insert code here to write your document to data of the specified type, throwing an error in case of failure.
-		// Alternatively, you could remove this method and override fileWrapper(ofType:), write(to:ofType:), or write(to:ofType:for:originalContentsURL:) instead.
-		throw NSError(domain: NSOSStatusErrorDomain, code: unimpErr, userInfo: nil)
-	}
-
-	override func read(from data: Data, ofType typeName: String) throws {
-		// Insert code here to read your document from the given data of the specified type, throwing an error in case of failure.
-		// Alternatively, you could remove this method and override read(from:ofType:) instead.
-		// If you do, you should also override isEntireFileLoaded to return false if the contents are lazily loaded.
-		throw NSError(domain: NSOSStatusErrorDomain, code: unimpErr, userInfo: nil)
-	}
-
-
+	
+	// MARK: - NSTextStorageDelegate
+	
+//	func textStorage(_ textStorage: NSTextStorage, didProcessEditing editedMask: NSTextStorageEditActions, range editedRange: NSRange, changeInLength delta: Int) {
+//		Swift.print("didProcessEditing")
+//		update()
+//	}
 }
 
