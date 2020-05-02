@@ -2,7 +2,7 @@
 //  Benchmarker.swift
 //  SpringRTSLuaIDETest
 //
-//  Created by Derek Bel on 23/4/20.
+//  Created by MasterBel2 on 23/4/20.
 //  Copyright © 2020 MasterBel2. All rights reserved.
 //
 

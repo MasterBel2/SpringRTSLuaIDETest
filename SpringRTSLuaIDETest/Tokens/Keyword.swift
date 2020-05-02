@@ -2,31 +2,13 @@
 //  Keyword.swift
 //  SpringRTSLuaIDETest
 //
-//  Created by Derek Bel on 22/4/20.
+//  Created by MasterBel2 on 22/4/20.
 //  Copyright © 2020 MasterBel2. All rights reserved.
 //
 
 import Foundation
 
 extension Token {
-	
-	struct ContextKeyword {
-		let declarator: Keyword
-		let terminators: [Keyword]
-	}
-
-	static let contextKeywords: [ContextKeyword] = [
-		ContextKeyword(declarator: .function, terminators: [.end]),
-		ContextKeyword(declarator: .if, terminators: [.or, .then]),
-		ContextKeyword(declarator: .elseif, terminators: [.or, .then]),
-		ContextKeyword(declarator: .or, terminators: [.or, .then]),
-		ContextKeyword(declarator: .then, terminators: [.else, .elseif, .end]),
-		ContextKeyword(declarator: .else, terminators: [.end]),
-		ContextKeyword(declarator: .repeat, terminators: [.until]),
-		ContextKeyword(declarator: .do, terminators: [.end]),
-		ContextKeyword(declarator: .while, terminators: [.do]),
-		ContextKeyword(declarator: .for, terminators: [.do]),
-	]
 	
 	enum Keyword: String {
 		// Context Keywords

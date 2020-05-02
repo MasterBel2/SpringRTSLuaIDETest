@@ -2,13 +2,13 @@
 //  Document.swift
 //  SpringRTSLuaIDETest
 //
-//  Created by Derek Bel on 22/4/20.
+//  Created by MasterBel2 on 22/4/20.
 //  Copyright © 2020 MasterBel2. All rights reserved.
 //
 
 import Cocoa
 
-class Document: NSDocument, NSTextViewDelegate, NSTextStorageDelegate {
+final class Document: NSDocument, NSTextViewDelegate, NSTextStorageDelegate {
 
     enum Error: Swift.Error {
         case encodingError
@@ -21,12 +21,15 @@ class Document: NSDocument, NSTextViewDelegate, NSTextStorageDelegate {
 	// MARK: - Workers
 	
 	let lexer = BaseLexer()
+	let parser = ContextParser(startIndex: 0, parent: nil, globalContext: GlobalContext(), terminators: [])
 	let presenter = CodePresenter()
 	
 	// MARK: - Outlets
 	
     @objc dynamic var presentationCode = NSAttributedString()
-    @IBOutlet var textView: NSTextView!
+    @IBOutlet var codeView: NSTextView!
+	@objc dynamic var documentation = NSAttributedString()
+	@IBOutlet var documentationView: NSTextView!
 	
 	// MARK: -
 	
@@ -63,21 +66,17 @@ class Document: NSDocument, NSTextViewDelegate, NSTextStorageDelegate {
         presentationCode = NSMutableAttributedString(string: fileContent)
     }
 
-//    func process() {
-//        do {
-//            let lexer = try Lexer(code: presentationCode.string)
-//            let tokenRangePairs = try lexer.tokenRangePairs2()
-//            guard let mutableString = presentationCode.mutableCopy() as? NSMutableAttributedString else {
-//                return
-//            }
-//            Highlighter().highlight(mutableString, with: tokenRangePairs)
-//            presentationCode = mutableString
-//        } catch {
-//            Swift.print(error)
-//        }
-//    }
-
     // MARK: - NSTextViewDelegate
+	
+	func textViewDidChangeSelection(_ notification: Notification) {
+		guard let rangeInCode = Range(codeView.selectedRange(), in: plainCode),
+		let documentationString = parser.documentation(forAttributeIn: rangeInCode) else {
+			documentation = NSAttributedString(string: "")
+			return
+		}
+		
+		documentation = NSAttributedString(string: documentationString)
+	}
 	
 	func textDidChange(_ notification: Notification) {
 		Swift.print("textDidChange")
@@ -85,17 +84,17 @@ class Document: NSDocument, NSTextViewDelegate, NSTextStorageDelegate {
 	}
 	
 	private func update() {
-		guard let code = textView.textStorage?.string else { return }
-		var tokens: [(token: Token, rangeOfToken: Range<String.Index>)] = []
+		guard let code = codeView.textStorage?.string else { return }
+		var tokens: [(token: Token, range: Range<String.Index>)] = []
 		_ = lexer.lex(code, into: &tokens, startingFrom: code.startIndex, resignAt: code.endIndex)
-		presenter.updateCode(code, shownIn: NSMakeRange(0, code.count), in: textView, with: tokens)
+		presenter.update(code, shownIn: NSRange(code.startIndex..<code.endIndex, in: code), in: codeView, with: tokens)
+		benchmarker.benchmark("Parsing", shouldResetClock: true) {
+			_ = parser.parse(tokens, from: code, startingFrom: 0)
+		}
+		benchmarker.printReport()
+		presenter.update(code, shownIn: NSRange(code.startIndex..<code.endIndex, in: code), in: codeView, with: parser.errors)
+		presenter.update(code, describedBy: tokens, shownIn: NSRange(code.startIndex..<code.endIndex, in: code), in: codeView, with: parser.attributeReferences)
 	}
 	
 	// MARK: - NSTextStorageDelegate
-	
-//	func textStorage(_ textStorage: NSTextStorage, didProcessEditing editedMask: NSTextStorageEditActions, range editedRange: NSRange, changeInLength delta: Int) {
-//		Swift.print("didProcessEditing")
-//		update()
-//	}
 }
-
