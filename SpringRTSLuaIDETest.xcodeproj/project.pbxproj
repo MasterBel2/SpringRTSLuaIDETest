@@ -56,6 +56,7 @@
 		3E13A846244F6C66003F5AC6 = {
 			isa = PBXGroup;
 			children = (
+				3EF1E66D245D2EAD00238EDF /* README.md */,
 				3E13A851244F6C66003F5AC6 /* SpringRTSLuaIDETest */,
 				3E13A850244F6C66003F5AC6 /* Products */,
 			);
@@ -73,7 +74,6 @@
 			isa = PBXGroup;
 			children = (
 				3E13A852244F6C66003F5AC6 /* AppDelegate.swift */,
-				3EF1E66D245D2EAD00238EDF /* README.md */,
 				3E13A854244F6C66003F5AC6 /* Document.swift */,
 				3E13A86B244FAA5C003F5AC6 /* Lexer.swift */,
 				3E9D9222245191A500B2DAE6 /* Parser.swift */,

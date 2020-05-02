@@ -24,3 +24,4 @@ The IDE, at this point in time, is simply a Lua file editor and syntax highlight
 2. Read `Document.update(_:)` in Document.swift to see an overview of the current structure of the program. Direct further questions to MasterBel2.
 
 As most code is experimental, it is also undocumented. Documentation is constantly being added, especially to less-comprehensible portions of the code. Don't be afraid to ask – MasterBel2 will answer and promptly update documentation with the aim of preventing further confusion. `Parser.swift` is currently the best-documented file.
+
